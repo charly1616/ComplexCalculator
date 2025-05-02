@@ -13,7 +13,7 @@
   max-width: 380px;
   border-radius: 20px;
 
-  box-shadow: 15px 15px 0px 0px rgba(0, 0, 0, 0.2); 
+  box-shadow: 20px 20px 0px 0px rgba(0, 0, 0, 0.15); 
 }
 
 
@@ -70,7 +70,17 @@
 
   &.sides {
     background-color: #fbb97e;
+    &:disabled{
+      background-color: #d7b698;
+      cursor: default;
+    }
   }
+
+  &:disabled{
+    background-color: #c4c4ad;
+    cursor: default;
+  }
+
 
   &.top {
     border-top-right-radius: 15px;
@@ -81,6 +91,8 @@
     border-bottom-right-radius: 15px;
     border-bottom-left-radius: 15px;
   }
+
+  
 
   &:hover {
     background-color: #f8f7af;
