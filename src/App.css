@@ -1,42 +1,99 @@
 #root {
+  height: 100%;
+
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.calc{
+  display: flex;
+  flex-direction: column;
+
+  max-width: 380px;
+  border-radius: 20px;
+
+  box-shadow: 15px 15px 0px 0px rgba(0, 0, 0, 0.2); 
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+
+.calc-ans {
+  padding: 40px 20px 25px 20px;
+  background-color: rgb(248, 252, 255);
+
+  border-radius: 20px 20px 0 0;
+
+  display: flex;
+  flex-direction: column;
+  
+
+  p {
+    margin: 0;
+    text-align: end;
+    max-height: fit-content;
   }
-  to {
-    transform: rotate(360deg);
+
+  .calc-prevOp {
+    font-size: 10px;
+    font-weight: 600px;
+  }
+
+  .calc-currOp{
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+}
+
+
+.buttons {
+  background-color: #f8d3af;
+  border-radius: 0 0 20px 20px;
+  padding: 15px;
+
+  flex-wrap: wrap;
+
+  button {
+    font-size: 25px;
+    font-weight: 500;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+.CalcButton {
+  min-width: 66px;
+  min-height: 66px;
+
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background-color: rgba(240, 248, 255, 0);
+
+  &.sides {
+    background-color: #fbb97e;
+  }
+
+  &.top {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+  }
+
+  &.bottom {
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+  }
+
+  &:hover {
+    background-color: #f8f7af;
+    border: none;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: #f8f7af;
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
