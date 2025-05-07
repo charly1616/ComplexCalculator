@@ -1,12 +1,12 @@
 {
-  "homepage": "https://charly1616.github.io/complexcalculator",
+  "homepage": "https://charly1616.github.io/ComplexCalculator/",
   "name": "complexcalculator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "start": "react-scripts start",
-    
+
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
 
