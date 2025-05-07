@@ -36,12 +36,25 @@
   .calc-prevOp {
     font-size: 10px;
     font-weight: 600px;
+    display: block;
+    white-space: nowrap;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
   }
 
-  .calc-currOp{
+  .calc-currOp {
     font-size: 25px;
     font-weight: 700;
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -ms-overflow-style: scrollbar;
   }
+
+  
 
 }
 
@@ -109,3 +122,18 @@
   }
 }
 
+
+::-webkit-scrollbar {
+  height: 6px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(228, 221, 210); 
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #b290ca; 
+}

@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import CalcButton from './CalcButton';
 
@@ -14,6 +14,8 @@ function Simplify(seq){
   if (!(seq instanceof Array)) return [new CNumber('0',false, true)]
   let is = new CNumber('0',true, true);
   let real = new CNumber('0',false, true);
+
+  // console.log("Simplify ", seq)
 
   let op = null;
 
@@ -44,11 +46,15 @@ function Simplify(seq){
 }
 
 function operationToString(seq){
-  if (seq.length < 1) return new CNumber('0', false, true)
-  let te = (seq[0].positive ? '' : '-') + seq[0].CtoString()
+  if (!seq) return "0"
+  if (seq.length < 1) return "0"
+  if (!(seq instanceof Array)) seq = [seq]
+  console.log("Operation to string ",seq)
+  let te = (seq[0].positive || seq[0].isError ? '' : '-') + seq[0].CtoString()
   let op = null;
   let rightSide = null;
   for (let i = 1; i < seq.length; i++){
+    if (seq[i].isError) return seq[i].num;
     if (!(seq[i] instanceof CNumber)){
       op = seq[i]
       rightSide = operationToString(seq.slice(i+1,seq.length))
@@ -78,8 +84,8 @@ class OneNumOp{
     if (!simp.some(a => a.i)) simp.push(new CNumber('0', true, true)) //Si no hay imaginario se añade
     if (!simp.some(a => !a.i)) simp.unshift(new CNumber('0', false, true)) //Si no hay real se añade
 
-    const real = (n) => parseFloat(n[0].num) * (n[0].positive ? 1 : -1);
-    const img = (n) => parseFloat(n[1].num) * (n[0].positive ? 1 : -1);
+    const real = (n) => parseFloat((n[0].num != '') ? n[0].num : '0') * (n[0].positive ? 1 : -1);
+    const img = (n) => parseFloat((n[1].num != '') ? n[1].num : '0') * (n[1].positive ? 1 : -1);
     const mod = (n) => Math.sqrt( Math.pow(real(n),2) + Math.pow(img(n),2))
     const arg = (n) => Math.atan2(img(n), real(n));
     switch (this.op){
@@ -95,6 +101,8 @@ class OneNumOp{
       };
       case "Ln": {
         let lnZ = Math.log(mod(simp))
+        if (real(simp) === 0 && img(simp) === 0) return [ new CNumber('Infinity Idk', false, true, true)]
+
         return [
           new CNumber(Math.abs(lnZ).toString(), false, lnZ>=0),
           new CNumber(arg(simp).toString(), true, true)
@@ -121,13 +129,18 @@ class TwoOpNum{
   operate(v, d){
     let simp = Simplify(v)
     let dimp = Simplify(d)
-    if (!simp.some(a => a.i)) simp.push(new CNumber('0', true, true)) //Si no hay imaginario se añade
-    if (!simp.some(a => !a.i)) simp.unshift(new CNumber('0', false, true)) //Si no hay real se añade
-    if (!dimp.some(a => a.i)) dimp.push(new CNumber('0', true, true)) //Si no hay imaginario se añade
-    if (!dimp.some(a => !a.i)) dimp.unshift(new CNumber('0', false, true)) //Si no hay real se añade
+    
 
-    const real = (n) => parseFloat(n[0].num) * (n[0].positive ? 1 : -1);
-    const img = (n) => parseFloat(n[1].num) * (n[0].positive ? 1 : -1);
+    if (!simp.some(a => a.i)) simp.push(new CNumber('0', true)) //Si no hay imaginario se añade
+    if (!simp.some(a => !a.i)) simp.unshift(new CNumber('0', false)) //Si no hay real se añade
+    if (!dimp.some(a => a.i)) dimp.push(new CNumber('0', true)) //Si no hay imaginario se añade
+    if (!dimp.some(a => !a.i)) dimp.unshift(new CNumber('0', false)) //Si no hay real se añade
+
+    // console.log("OP:: ")
+    // console.log(v,d)
+
+    const real = (n) => parseFloat((n[0].num != '') ? n[0].num : '0') * (n[0].positive ? 1 : -1);
+    const img = (n) => parseFloat((n[1].num != '') ? n[1].num : '0') * (n[1].positive ? 1 : -1);
     const mod = (n) => Math.sqrt( Math.pow(real(n),2) + Math.pow(img(n),2))
     const arg = (n) => Math.atan2(img(n), real(n));
     switch (this.op){
@@ -141,8 +154,17 @@ class TwoOpNum{
       }
         
       case '/': {
-        const a = real(simp), b = img(simp);
-        const c = real(dimp), d = img(dimp);
+
+        let a = real(simp), b = img(simp);
+        let c = real(dimp), d = img(dimp);
+        // console.log("Division " + [a,b,c,d])
+
+
+        let denominadorZero = c === 0 && d === 0
+        let numeradorZero = a === 0 && b === 0
+        if (numeradorZero && denominadorZero) return [new CNumber("Super ilegal", false, false, true), new CNumber("", true, true, true)]
+        if (denominadorZero) return [new CNumber("This is ilegal", false, false, true), new CNumber("", true, true, true)]
+        
         const denominator = c * c + d * d;
     
         const re = (a * c + b * d) / denominator;
@@ -155,11 +177,16 @@ class TwoOpNum{
       }
     
       case '^': {
-        const c = real(dimp), d = img(dimp); // exponente
+        let c = real(dimp), d = img(dimp);
+
+        
 
         const ln_r = Math.log(mod(simp));    // ln|base|
         const theta = arg(simp);             // arg(base)
-
+        // console.log(c === 0, d === 0, mod(simp) === 0)
+        if (c === 0 && d === 0 && mod(simp) === 0) return [new CNumber('0, 1 or neither', )]
+        if (mod(simp) === 0) return [new CNumber('0'), false, false]
+        
         const realExp = c * ln_r - d * theta;
         const imagExp = d * ln_r + c * theta;
 
@@ -185,10 +212,11 @@ class TwoOpNum{
 
 
 class CNumber {
-  constructor (num, i=false, positive=true){
+  constructor (num, i=false, positive=true, isError=false){
     this.num = num;
     this.i = i;
     this.positive = positive;
+    this.isError = isError;
   }
 
   addDigit(dig){
@@ -198,13 +226,16 @@ class CNumber {
   }
 
   removeDigit(){
-    console.log(typeof this.num)
+    //  console.log(typeof this.num)
     this.num = this.num.slice(0,-1);
     return this.num.length > 0;
   }
 
   addNumber(num){
     if (this.i !== num.i) return false;
+    if (num.isError || this.isError) return false;
+    if (num.num === '') return this;
+    if (this.num === '') return new CNumber(num.num, num.i , this.positive);
     let ans = (num.positive ? 1 : -1) * parseFloat(num.num) + (this.positive ? 1 : -1) * parseFloat(this.num);
     return new CNumber(Math.abs(ans).toString(), this.i ,ans >= 0);
   }
@@ -230,16 +261,30 @@ function App() {
   const [op, setOp] = useState('0')
 
   const handleAddDig = (e) => {
-    if (!(operationPool[operationPool.length -1] instanceof CNumber)) return
-    operationPool[operationPool.length -1].addDigit(e);
-    console.log(Simplify(operationPool))
+    const lastOp = operationPool[operationPool.length -1]
+    if (operationPool.some(e => e.isError)) {
+      setOperationPool([new CNumber(''+e, false)]);
+      handleShow();
+      return
+    }
+    if (!(lastOp instanceof CNumber)) return
+
+    lastOp.addDigit(e);
+    //  console.log(Simplify(operationPool))
     handleShow()
   }
 
   const handleRemDig = () => {
-    if (operationPool[operationPool.length -1] instanceof  CNumber){
-      operationPool[operationPool.length -1].removeDigit()
-      if (operationPool[operationPool.length -1].num === '' && operationPool.length > 1) setOperationPool(prev => prev.slice(0, -1));
+    const lastOp = operationPool[operationPool.length -1]
+    if (operationPool.some(e => e.isError)) {
+      setOperationPool([new CNumber('', false)]);
+      handleShow();
+      return
+    }
+    if (lastOp instanceof  CNumber){
+      if (!lastOp.isError) lastOp.removeDigit();
+      else {setOperationPool(new CNumber('0'));}
+      if (lastOp.num === '' && operationPool.length > 1) setOperationPool(prev => prev.slice(0, -1));
     }
     else{
       setOperationPool(operationPool.slice(0,-1))
@@ -253,6 +298,11 @@ function App() {
   }
 
   const handleNewNum = (positive) => {
+    if (operationPool.some(e => e.isError)) {
+      setOperationPool([new CNumber('', false, positive)]);
+      handleShow();
+      return
+    }
     setOperationPool(prev => [...prev, new CNumber('', false, positive)]);
     handleShow();
   }
@@ -262,6 +312,7 @@ function App() {
     setPastOperations(prev => [...prev, operationPool])
     setLastOperation(operationToString(operationPool))
     let c = Simplify(operationPool).filter( e => e.num !== '' && e.num !== '0')
+    if (c.length === 0) c = [new CNumber("")]
     setOperationPool(c)
     setOp(operationToString(c));
     setOperated(false)
@@ -269,17 +320,32 @@ function App() {
 
   const handleNewOneOperation = (e) => {
     if (operated) return;
+    if (operationPool.some(e => e.isError)) return
     setLastOperation(operationToString([...operationPool, new OneNumOp(e)]))
-    setPastOperations(prev => [...prev, [...operationPool, new OneNumOp(e)]])
-    const ans = Simplify([...operationPool, new OneNumOp(e)]).filter( e => e.num !== '' && e.num !== '0')
+    let ans = Simplify([...operationPool, new OneNumOp(e)]).filter( e => e.num !== '' && e.num !== '0')
+    if (ans.length === 0) ans = [new CNumber("")]
     setOperationPool(ans)
+    setPastOperations(prev => [...prev, ans])
     setOp(operationToString(ans));
     setOperated(false)
   }
 
   const handleNewTwoOperation = (e) => {
     if (operated) return;
+    if (operationPool.some(e => e.isError)) return
     setOperationPool(prev => [...prev, new TwoOpNum(e), new CNumber('', false, true)]);
+    setOperated(true)
+  }
+
+
+  const handlePrevOp = () => {
+    if (pastOperations.length < 1) return
+    let lastOp = pastOperations[pastOperations.length-1]
+    setPastOperations(prev => prev.slice(0,-1));
+    setLastOperation(operationToString(pastOperations.length > 1 ? pastOperations[pastOperations.length-2] : [new CNumber('0')]))
+    setOperationPool(lastOp);
+    setOperated(true)
+    handleShow();
   }
 
 
@@ -295,7 +361,7 @@ function App() {
       <div className="calc">
         <div className="calc-ans">
           <p className="calc-prevOp">
-            {lastOperation}
+            {lastOperation }
           </p>
           <p className="calc-currOp">
             {op}
@@ -319,6 +385,7 @@ function App() {
             if (e === '=') func = handleFinishOp
             if (['Ln', '|x|', '√x'].includes(e)) func = () => handleNewOneOperation(e);
             if (['x', '/','^'].includes(e)) func = () => handleNewTwoOperation(e);
+            if (e === '↩') func = () => handlePrevOp();
 
             if (i===0 || i===4) return <CalcButton className='CalcButton sides top' key={i} text={e} onClick={func} disabled={func==='oo'}/>
             if (i===20 || i===24) return <CalcButton className='CalcButton sides bottom' key={i} text={e} onClick={func} disabled={func==='oo'}/>
