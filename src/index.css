@@ -16,13 +16,43 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+/*  COLORES Y TEMA  */
+
+  --color-bg-ans: rgb(248, 252, 255);
+  --color-bg-pattern: rgba(154,88,254,0.8);
+  --color-bg-buttons: #fdd4ab;
+  --color-btn-sides: #fbb97e;
+  --color-btn-sides-disabled: #feebd6;
+  --color-btn-disabled: #fff6ed;
+  --color-btn-hover: #feebd6;
+  --scrollbar-thumb: #feebd6;
+  --scrollbar-thumb-hover: #e0d4ff;
+  --color-Text: #1f1f1f;
 }
+
+/* 🌙 Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-ans: #3c266d;
+    --color-bg-pattern: rgba(3, 2, 7, 0.9);
+    --color-bg-buttons: #25193c;
+    --color-btn-sides: #361c6c;
+    --color-btn-sides-disabled: #7a45e6;
+    --color-btn-disabled: #7a45e6;
+    --color-btn-hover: #6b37cb;
+    --scrollbar-thumb: #2b1b4b;
+    --scrollbar-thumb-hover: #6b37cb;
+    --color-Text: #c6c6c6;
+  }
+}
+
 
 .backg {
   height: 100vh;
   width: 100vw;
 
-  background-color: rgba(146, 116, 255, 0.8); /* white with transparency */
+  background-color: var(--color-bg-pattern); /* white with transparency */
   background-blend-mode: multiply;
 
   display: flex;
@@ -42,6 +72,7 @@ body {
   min-height: 100vh;
 
   height: 100%;
+  color: var(--color-Text);
 }
 
 h1 {
@@ -56,15 +87,8 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
+
+  color: var(--color-Text);
 }
 
-@media (prefers-color-scheme: light) {
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}

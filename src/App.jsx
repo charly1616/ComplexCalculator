@@ -241,9 +241,11 @@ class CNumber {
   }
 
   CtoString(){
+    if (this.num === '.') return '0.'
+    let short = parseFloat(parseFloat(this.num).toFixed(4)).toString();
     if (this.num === '') return '0'
     if (this.num === '1' && this.i) return 'i'
-    return this.num + ((this.i) ? 'i' : '')
+    return short + ((this.i) ? 'i' : '')
   }
 }
 
@@ -251,7 +253,7 @@ class CNumber {
 function App() {
   const [theButtons] = useState(buttons);
   
-  const [lastOperation, setLastOperation] = useState('(1+4i) x (4+3i)');
+  const [lastOperation, setLastOperation] = useState('0');
   const [pastOperations, setPastOperations] = useState([])
   const [operationPool, setOperationPool] = useState([new CNumber('')])
 
@@ -344,7 +346,7 @@ function App() {
     setPastOperations(prev => prev.slice(0,-1));
     setLastOperation(operationToString(pastOperations.length > 1 ? pastOperations[pastOperations.length-2] : [new CNumber('0')]))
     setOperationPool(lastOp);
-    setOperated(true)
+    setOperated(lastOp.some( e => e instanceof OneNumOp || e instanceof TwoOpNum))
     handleShow();
   }
 
